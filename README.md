@@ -190,7 +190,7 @@ const api = axios.create({
 | ------ | ------ | ------------- |
 | Login  | POST   | `/auth/login` |
 
-***🛒 Products**
+**🛒 Products**
 
 | Action            | Method | Endpoint        |
 | ----------------- | ------ | --------------- |
@@ -203,7 +203,7 @@ const api = axios.create({
 
 **How the Project Works**
 
-***Routing**
+**Routing**
 
 - All application routes are configured in:
 
