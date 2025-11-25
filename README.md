@@ -270,6 +270,5 @@ This project is open for personal or educational use. You may modify it freely.
 
 ***Contributing**
 
-
 Contributions are welcome!
 Feel free to submit pull requests or request new features.
