@@ -6,15 +6,15 @@ A simple product management dashboard built with Vue 3, Vite, Pinia, and Vue Rou
 
 - View a list of products
 
-Create (add) new products
+- Create (add) new products
 
-View detailed product information
+- View detailed product information
 
-Delete products
+- Delete products
 
-Manage authentication (basic mock auth)
+- Manage authentication (basic mock auth)
 
-Product listing with search
+- Product listing with search
 
 
 The UI is styled with TailwindCSS, and all product data is handled through a small API service wrapper.
@@ -25,26 +25,26 @@ The UI is styled with TailwindCSS, and all product data is handled through a sma
  
  **Authentication**
 
-Login using DummyJSON API
+- Login using DummyJSON API
 
-Token stored in Pinia + persisted using localStorage
+-Token stored in Pinia + persisted using localStorage
 
-Route protection (unauthenticated users cannot access product pages)
+- Route protection (unauthenticated users cannot access product pages)
 
 
 **Product Management**
 
-Fetch all products
+- Fetch all products
 
-Search products by title
+- Search products by title
 
-Optional category filtering
+- Optional category filtering
 
-Product detail page
+- Product detail page
 
-Add new product
+- Add new product
 
-Delete product (with confirmation modal)
+- Delete product (with confirmation modal)
 
 
 **UI/UX**
