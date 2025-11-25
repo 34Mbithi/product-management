@@ -228,7 +228,7 @@ const api = axios.create({
 
 - Each store handles a specific part of the app logic and data.
 
-**stores/products.js***
+**stores/products.js**
 
 - Responsible for all product-related operations, including:
 
@@ -257,7 +257,7 @@ const api = axios.create({
 
   - Restoring session on page reload
 
-Logging out
+  - Logging out
 
   - Adding the token to axios requests
 
