@@ -80,20 +80,35 @@ src/
 ├── components/
 
 ├── pages/
+
 │   ├── Login.vue
+
 │   ├── ProductsList.vue
+
 │   ├── ProductNew.vue
+
 │   └── ProductView.vue
+
 ├── router/
+
 │   └── index.js
+
 ├── services/
+
 │   └── api.js
+
 ├── stores/
+
 │   ├── auth.js
+
 │   ├── categories.js
+
 │   └── products.js
+
 ├── App.vue
+
 ├── main.js
+
 └── style.css
 
 
@@ -287,6 +302,7 @@ No role-based permissions.
 ***Product Data Assumptions***
 
 DummyJSON does not persist add/delete actions — therefore:
+
     ✔Newly created products are stored locally in the Pinia store.
     ✔localStorage is used to maintain product state across page reloads.
 
