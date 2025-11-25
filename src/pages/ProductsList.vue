@@ -27,7 +27,7 @@
           class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
         >
           <option value="">Category</option>
-          <option v-for="c in store.categories" :key="c" :value="c">
+          <option v-for="c in categoryNames" :key="c" :value="c">
             {{ c }}
           </option>
         </select>
@@ -90,7 +90,7 @@
             <!-- Category -->
             <td class="py-5 px-5">
               <span class="px-2.5 py-1 text-xs rounded-lg font-medium" :class="badgeColor(p.category)">
-                {{ p.category }}
+                {{ getCategoryName(p.category) }}
               </span>
             </td>
 
@@ -191,12 +191,12 @@ onMounted(async () => {
 // Navigate
 const goToProduct = (id) => router.push(`/products/${id}`);
 
-// Filtering
+// Filtered products
 const filtered = computed(() => {
   return store.products.filter((p) => {
     const matchesSearch = p.title?.toLowerCase().includes(search.value.toLowerCase());
     const matchesCategory = selectedCategory.value
-      ? p.category?.toLowerCase() === selectedCategory.value.toLowerCase()
+      ? getCategoryName(p.category)?.toLowerCase() === selectedCategory.value.toLowerCase()
       : true;
 
     const stock = Number(p.stock || 0);
@@ -231,6 +231,15 @@ const prevPage = () => {
   if (page.value > 1) page.value--;
 };
 
+// Category names for select dropdown
+const categoryNames = computed(() => store.categories.map(c => c.name || c));
+
+// Map slug to human-readable category
+const getCategoryName = (slug) => {
+  const cat = store.categories.find(c => c.slug === slug);
+  return cat?.name || slug;
+};
+
 // Category badge colors
 const badgeColor = (cat) => {
   const map = {
@@ -247,6 +256,7 @@ const badgeColor = (cat) => {
   return map[cat?.toLowerCase()] || "bg-gray-100 text-gray-600";
 };
 
+// Stock indicators
 const stockDot = (stock) => {
   if (stock > 20) return "bg-green-500";
   if (stock > 0) return "bg-orange-500";
@@ -259,6 +269,7 @@ const stockLabel = (stock) => {
   return "Out of Stock";
 };
 
+// Logout
 const logout = () => {
   localStorage.clear();
   router.push("/");
@@ -266,7 +277,6 @@ const logout = () => {
 </script>
 
 <style scoped>
-/* Optional but improves appearance */
 button {
   transition: 0.15s ease;
 }

@@ -13,7 +13,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // Set the base path to your repo name for GitHub Pages
+  history: createWebHistory("/product-management/"),
   routes,
 })
 
