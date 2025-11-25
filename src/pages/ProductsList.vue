@@ -1,74 +1,213 @@
 <template>
-  <div>
-    <div class="flex justify-between items-center mb-4">
-      <input
-        v-model="search"
-        placeholder="Search products..."
-        class="border px-4 py-2 rounded w-72"
-      />
+  <div class="space-y-10 pb-20">
 
+    <!-- Header -->
+    <div class="pt-4">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Products</h1>
+      <p class="text-gray-500 mt-1 text-sm">Manage your inventory and view product performance.</p>
+    </div>
+
+    <!-- Search, Filters, Add -->
+    <div class="bg-white p-6 rounded-2xl shadow border border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div class="flex flex-col lg:flex-row gap-4 flex-1">
+
+        <!-- Search -->
+        <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full shadow-sm hover:border-gray-300 transition">
+          <i class="fa fa-search text-gray-400"></i>
+          <input
+            v-model="search"
+            placeholder="Search by product name..."
+            class="bg-transparent focus:outline-none w-full text-sm"
+          />
+        </div>
+
+        <!-- Category Filter -->
+        <select
+          v-model="selectedCategory"
+          class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
+        >
+          <option value="">Category</option>
+          <option v-for="c in store.categories" :key="c" :value="c">
+            {{ c }}
+          </option>
+        </select>
+
+        <!-- Stock Filter -->
+        <select
+          v-model="stockFilter"
+          class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
+        >
+          <option value="">Stock Status</option>
+          <option value="in">In Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="out">Out of Stock</option>
+        </select>
+      </div>
+
+      <!-- Add Product -->
       <router-link
         to="/products/new"
-        class="px-4 py-2 bg-primary text-white rounded"
+        class="px-6 py-3 bg-blue-900 text-white rounded-xl shadow hover:bg-blue-800 transition flex items-center gap-2 text-sm"
       >
+        <i class="fa fa-plus"></i>
         Add New Product
       </router-link>
     </div>
 
+    <!-- Loader -->
     <LoadingSpinner v-if="store.isLoading" />
 
-    <ProductTable v-else>
-      <ProductRow
-        v-for="p in filtered"
-        :key="p.id"
-        :product="p"
-        @view="goTo(p.id)"
-        @delete="confirmDelete(p.id)"
-      />
-    </ProductTable>
+    <!-- Product Table -->
+    <div v-else class="overflow-x-auto bg-white rounded-2xl shadow border border-gray-200">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-600 border-b bg-gray-50 text-xs uppercase tracking-wider">
+            <th class="py-4 px-5 font-medium">Product</th>
+            <th class="py-4 px-5 font-medium">Category</th>
+            <th class="py-4 px-5 font-medium">Price</th>
+            <th class="py-4 px-5 font-medium">Stock</th>
+          </tr>
+        </thead>
 
-    <ConfirmModal
-      :show="confirming"
-      title="Delete Product"
-      message="Are you sure?"
-      @update:show="confirming = $event"
-      @confirmed="deleteProduct"
-    />
+        <tbody>
+          <tr
+            v-for="p in filtered"
+            :key="p.id"
+            class="border-b last:border-none hover:bg-gray-50 transition cursor-pointer"
+            @click="goToProduct(p.id)"
+          >
+            <!-- Product -->
+            <td class="py-5 px-5">
+              <div class="flex items-start gap-4">
+                <img :src="p.thumbnail" class="w-14 h-14 rounded-lg object-cover shadow-sm border border-gray-200" />
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm leading-tight">{{ p.title }}</p>
+                  <p class="text-gray-500 text-xs leading-snug line-clamp-2 max-w-xs">{{ p.description }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- Category Badge -->
+            <td class="py-5 px-5">
+              <span class="px-2.5 py-1 text-xs rounded-lg font-medium" :class="badgeColor(p.category)">
+                {{ p.category }}
+              </span>
+            </td>
+
+            <!-- Price -->
+            <td class="py-5 px-5 font-semibold text-gray-700">
+              ${{ Number(p.price).toFixed(2) }}
+            </td>
+
+            <!-- Stock -->
+            <td class="py-5 px-5">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full" :class="stockDot(Number(p.stock))"></span>
+                <span class="text-sm text-gray-700">{{ stockLabel(Number(p.stock)) }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-between items-center text-sm text-gray-500 pt-4">
+      <span>Showing {{ filtered.length }} of {{ store.products.length }} results</span>
+
+      <div class="flex items-center gap-2">
+        <button class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm">&lt;</button>
+        <button class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm">&gt;</button>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div class="flex justify-center pt-10">
+      <button @click="logout" class="px-8 py-3 bg-red-600 text-white rounded-xl shadow hover:bg-red-500 transition text-sm">
+        Logout
+      </button>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useProductsStore } from '../stores/products'
-import ProductTable from '../components/ProductTable.vue'
-import ProductRow from '../components/ProductRow.vue'
-import LoadingSpinner from '../components/LoadingSpinner.vue'
-import ConfirmModal from '../components/ConfirmModal.vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from "vue";
+import { useProductsStore } from "../stores/products";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
-const store = useProductsStore()
+const router = useRouter();
+const store = useProductsStore();
 
-const search = ref('')
-const confirming = ref(false)
-const deleteId = ref(null)
+const search = ref("");
+const selectedCategory = ref("");
+const stockFilter = ref("");
 
-onMounted(() => store.fetchProducts())
+// Load products + categories when page loads
+onMounted(async () => {
+  await store.fetchProducts();
+  await store.fetchCategories();
+});
 
-const filtered = computed(() =>
-  store.products.filter(p =>
-    p.title.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+// Navigate to product
+const goToProduct = (id) => {
+  router.push(`/products/${id}`);
+};
 
-const goTo = (id) => router.push(`/products/${id}`)
+// Filtering logic
+const filtered = computed(() => {
+  return store.products.filter((p) => {
+    const matchesSearch = p.title?.toLowerCase().includes(search.value.toLowerCase());
+    const matchesCategory = selectedCategory.value
+      ? p.category?.toLowerCase() === selectedCategory.value.toLowerCase()
+      : true;
 
-const confirmDelete = (id) => {
-  deleteId.value = id
-  confirming.value = true
-}
+    const stock = Number(p.stock || 0);
+    const matchesStock =
+      stockFilter.value === ""
+        ? true
+        : stockFilter.value === "in"
+        ? stock > 20
+        : stockFilter.value === "low"
+        ? stock > 0 && stock <= 20
+        : stock === 0;
 
-const deleteProduct = async () => {
-  await store.deleteProduct(deleteId.value)
-}
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+});
+
+// Category badge colors
+const badgeColor = (cat) => {
+  const map = {
+    beauty: "bg-pink-100 text-pink-700",
+    fragrances: "bg-purple-100 text-purple-700",
+    furniture: "bg-yellow-100 text-yellow-700",
+    groceries: "bg-green-100 text-green-700",
+    smartphones: "bg-blue-100 text-blue-700",
+    laptops: "bg-indigo-100 text-indigo-700",
+    "home-decoration": "bg-orange-100 text-orange-700",
+    tops: "bg-rose-100 text-rose-700",
+    skincare: "bg-teal-100 text-teal-700",
+  };
+  return map[cat?.toLowerCase()] || "bg-gray-100 text-gray-600";
+};
+
+// Stock indicator colors
+const stockDot = (stock) => {
+  if (stock > 20) return "bg-green-500";
+  if (stock > 0) return "bg-orange-500";
+  return "bg-red-500";
+};
+
+const stockLabel = (stock) => {
+  if (stock > 20) return `${stock} In Stock`;
+  if (stock > 0) return `${stock} Low Stock`;
+  return "Out of Stock";
+};
+
+const logout = () => {
+  localStorage.clear();
+  router.push("/");
+};
 </script>

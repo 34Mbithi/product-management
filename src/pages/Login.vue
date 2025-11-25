@@ -10,7 +10,7 @@
     <!-- Card -->
     <div class="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
       <h2 class="text-2xl font-semibold text-center">Welcome Back</h2>
-      <p class="text-center text-gray-500 mb-6">Sign in to manage your products.</p>
+      <p class="text-center text-gray-498 mb-6">Sign in to manage your products.</p>
 
       <!-- Form -->
       <form @submit.prevent="handleLogin" class="space-y-5">
@@ -77,10 +77,12 @@
 <script setup>
 import { ref } from "vue"
 import { useAuthStore } from "../stores/auth"
+import { useRouter } from 'vue-router'
 
 const username = ref("")
 const password = ref("")
 const showPassword = ref(false)
+const router = useRouter()
 
 const auth = useAuthStore()
 
@@ -89,6 +91,7 @@ const handleLogin = async () => {
     username: username.value,
     password: password.value,
   })
+  router.push('/products')
 }
 </script>
 

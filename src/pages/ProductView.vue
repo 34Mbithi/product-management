@@ -1,34 +1,67 @@
 <template>
-  <div>
-    <button @click="router.back()" class="mb-4 px-3 py-1 border rounded">
-      Back
+  <div class="p-6 max-w-6xl mx-auto">
+
+    <!-- Back -->
+    <button @click="router.back()" class="mb-5 px-4 py-2 bg-blue-100 hover:bg-gray-200 rounded-lg flex items-center gap-2">
+      <i class="fa fa-arrow-left"></i> Back
     </button>
 
     <LoadingSpinner v-if="loading" />
 
-    <div v-else class="bg-white p-6 rounded shadow max-w-2xl">
-      <img
-        :src="product.thumbnail"
-        class="w-full h-64 object-cover rounded mb-4"
-      />
+    <div v-else class="bg-white rounded-2xl shadow p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
 
-      <h1 class="text-2xl font-bold">{{ product.title }}</h1>
-      <p class="text-gray-600 mt-2">{{ product.description }}</p>
+      <!-- Image -->
+      <img :src="product.thumbnail" class="w-full rounded-xl shadow object-cover" />
 
-      <div class="mt-4 grid grid-cols-2 gap-4">
-        <div><b>Category:</b> {{ product.category }}</div>
-        <div><b>Price:</b> Ksh {{ product.price }}</div>
-        <div><b>Stock:</b> {{ product.stock }}</div>
+      <!-- Info -->
+      <div>
+        <h1 class="text-3xl font-bold">{{ product.title }}</h1>
+        <p class="text-gray-600 mt-2 leading-relaxed">
+          {{ product.description }}
+        </p>
+
+        <button
+          class="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 flex items-center gap-2"
+        >
+          <i class="fa fa-edit"></i> Edit Product
+        </button>
+
+        <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="text-gray-500">Price</p>
+            <p class="text-gray-900 font-semibold">${{ product.price }}</p>
+          </div>
+
+          <div>
+            <p class="text-gray-500">Category</p>
+            <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg">
+              {{ product.category }}
+            </span>
+          </div>
+
+          <div>
+            <p class="text-gray-500">Stock</p>
+            <span class="px-3 py-1 rounded-lg"
+                  :class="product.stock > 20 ? 'bg-green-100 text-green-600' :
+                          product.stock > 0 ? 'bg-yellow-100 text-yellow-600' :
+                                               'bg-red-100 text-red-600'">
+              {{ product.stock }} units
+            </span>
+          </div>
+        </div>
+
+        <!-- Delete -->
+        <button
+          @click="showConfirm = true"
+          class="mt-8 px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+        >
+          Delete Product
+        </button>
       </div>
 
-      <button
-        @click="confirmDelete"
-        class="mt-6 px-4 py-2 bg-red-600 text-white rounded"
-      >
-        Delete
-      </button>
     </div>
 
+    <!-- Confirm Modal -->
     <ConfirmModal
       :show="showConfirm"
       title="Delete Product"
@@ -40,29 +73,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useProductsStore } from '../stores/products'
-import LoadingSpinner from '../components/LoadingSpinner.vue'
-import ConfirmModal from '../components/ConfirmModal.vue'
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useProductsStore } from "../stores/products";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
+import ConfirmModal from "../components/ConfirmModal.vue";
 
-const route = useRoute()
-const router = useRouter()
-const store = useProductsStore()
+const route = useRoute();
+const router = useRouter();
+const store = useProductsStore();
 
-const loading = ref(true)
-const product = ref({})
-const showConfirm = ref(false)
+const loading = ref(true);
+const product = ref({});
+const showConfirm = ref(false);
 
 onMounted(async () => {
-  product.value = await store.fetchProductById(route.params.id)
-  loading.value = false
-})
-
-const confirmDelete = () => (showConfirm.value = true)
+  product.value = await store.fetchProductById(route.params.id);
+  loading.value = false;
+});
 
 const remove = async () => {
-  await store.deleteProduct(route.params.id)
-  router.push('/products')
-}
+  await store.deleteProduct(route.params.id);
+  router.push("/products");
+};
 </script>
