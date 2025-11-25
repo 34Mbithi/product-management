@@ -1,12 +1,19 @@
 # **Product Management Dashboard**
+
 A simple product management dashboard built with Vue 3, Vite, Pinia, and Vue Router.
 
 **This project lets users:**
+
 View a list of products
+
 Create (add) new products
+
 View detailed product information
+
 Delete products
+
 Manage authentication (basic mock auth)
+
 Product listing with search
 
 
