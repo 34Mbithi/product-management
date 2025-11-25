@@ -4,7 +4,7 @@ A simple product management dashboard built with Vue 3, Vite, Pinia, and Vue Rou
 
 **This project lets users:**
 
-View a list of products
+- View a list of products
 
 Create (add) new products
 
