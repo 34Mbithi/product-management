@@ -49,13 +49,13 @@ The UI is styled with TailwindCSS, and all product data is handled through a sma
 
 **UI/UX**
 
-TailwindCSS styling
+- TailwindCSS styling
 
-Responsive, clean layout
+- Responsive, clean layout
 
-Accent color: #000080
+- Accent color: #000080
 
-Hover states, spacing, rounded corners
+- Hover states, spacing, rounded corners
 
 
 
@@ -176,14 +176,14 @@ const api = axios.create({
 
 ***Route guards ensure:**
 
-Unauthenticated users → redirected to /login
+- Unauthenticated users → redirected to /login
 
-Authenticated users cannot return to /login
+- Authenticated users cannot return to /login
 
 
 ***API Endpoints**
 
-All endpoints use DummyJSON.
+- All endpoints use DummyJSON.
 
 ***🔐 Auth**
 
@@ -206,9 +206,9 @@ All endpoints use DummyJSON.
 
 ***Routing**
 
-All application routes are configured in:
+- All application routes are configured in:
 
-src/router/index.js
+ src/router/index.js
 
 
 
@@ -225,50 +225,51 @@ src/router/index.js
 
 ***State Management (Pinia)**
 
-The project uses Pinia for centralized state management.
+- The project uses Pinia for centralized state management.
 
-Each store handles a specific part of the app logic and data.
+- Each store handles a specific part of the app logic and data.
 
 ***stores/products.js***
-Responsible for all product-related operations, including:
 
-Fetching all products
+- Responsible for all product-related operations, including:
 
-Fetching a product by ID
+- Fetching all products
 
-Creating (adding) a new product
+- Fetching a product by ID
 
-Deleting a product
+- Creating (adding) a new product
 
-Managing loading & error states
+- Deleting a product
 
-Merging API products with locally stored products
+- Managing loading & error states
+
+- Merging API products with locally stored products
 
 
 ***stores/auth.js***
 
-Handles user authentication and session state.
+ Handles user authentication and session state.
 
-Includes:
+ Includes:
 
-Logging in
+  - Logging in
 
-Storing token & user data
+  - Storing token & user data
 
-Restoring session on page reload
+  - Restoring session on page reload
 
 Logging out
 
-Adding the token to axios requests
+  - Adding the token to axios requests
 
 ***stores/categories.js***
 
 A lightweight store that manages the list of product categories.
 Includes:
 
-Fetching categories from the API
+ - Fetching categories from the API
 
-Loading/error handling
+ - Loading/error handling
 
 
 **Key Project Assumptions**
@@ -285,30 +286,30 @@ Loading/error handling
 
 ***Authentication Assumptions***
 
-The DummyJSON /auth/login endpoint is used for authentication.
+  - The DummyJSON /auth/login endpoint is used for authentication.
 
-Token and user data are stored in localStorage for persistence.
+  - Token and user data are stored in localStorage for persistence.
 
-Token is attached via axios headers:
+  - Token is attached via axios headers:
 
-```bash
-api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-```
+   ```bash
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+   ```
 
-No session expiration or refresh tokens are included (API limitation).
+  - No session expiration or refresh tokens are included (API limitation).
 
-No role-based permissions.
+  - No role-based permissions.
 
 ***Product Data Assumptions***
 
-DummyJSON does not persist add/delete actions — therefore:
+- DummyJSON does not persist add/delete actions — therefore:
 
     ✔Newly created products are stored locally in the Pinia store.
     ✔localStorage is used to maintain product state across page reloads.
 
-Product merging logic combines:
+- Product merging logic combines:
 
-API products + locally created products
+- API products + locally created products
 
 ***UI & UX Assumptions***
 TailwindCSS is used for all styling.
