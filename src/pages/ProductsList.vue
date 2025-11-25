@@ -71,7 +71,7 @@
 
         <tbody>
           <tr
-            v-for="p in filtered"
+            v-for="p in paginated"
             :key="p.id"
             class="border-b last:border-none hover:bg-gray-50 transition cursor-pointer"
             @click="goToProduct(p.id)"
@@ -87,7 +87,7 @@
               </div>
             </td>
 
-            <!-- Category Badge -->
+            <!-- Category -->
             <td class="py-5 px-5">
               <span class="px-2.5 py-1 text-xs rounded-lg font-medium" :class="badgeColor(p.category)">
                 {{ p.category }}
@@ -113,11 +113,47 @@
 
     <!-- Pagination -->
     <div class="flex justify-between items-center text-sm text-gray-500 pt-4">
-      <span>Showing {{ filtered.length }} of {{ store.products.length }} results</span>
+      <span>
+        Showing {{ paginated.length }} of {{ filtered.length }} results
+      </span>
 
       <div class="flex items-center gap-2">
-        <button class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm">&lt;</button>
-        <button class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm">&gt;</button>
+
+        <!-- Prev -->
+        <button
+          @click="prevPage"
+          :disabled="page === 1"
+          class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          &lt;
+        </button>
+
+        <!-- Page numbers -->
+        <div class="flex items-center gap-1">
+          <button
+            v-for="n in totalPages"
+            :key="n"
+            @click="page = n"
+            :class="[
+              'px-3 py-1.5 rounded-lg text-sm transition shadow-sm border',
+              page === n
+                ? 'bg-blue-900 text-white border-blue-900'
+                : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
+            ]"
+          >
+            {{ n }}
+          </button>
+        </div>
+
+        <!-- Next -->
+        <button
+          @click="nextPage"
+          :disabled="page === totalPages"
+          class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white hover:bg-gray-100 shadow-sm transition text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          &gt;
+        </button>
+
       </div>
     </div>
 
@@ -143,19 +179,19 @@ const store = useProductsStore();
 const search = ref("");
 const selectedCategory = ref("");
 const stockFilter = ref("");
+const page = ref(1);
+const perPage = 10;
 
-// Load products + categories when page loads
+// Load products + categories
 onMounted(async () => {
   await store.fetchProducts();
   await store.fetchCategories();
 });
 
-// Navigate to product
-const goToProduct = (id) => {
-  router.push(`/products/${id}`);
-};
+// Navigate
+const goToProduct = (id) => router.push(`/products/${id}`);
 
-// Filtering logic
+// Filtering
 const filtered = computed(() => {
   return store.products.filter((p) => {
     const matchesSearch = p.title?.toLowerCase().includes(search.value.toLowerCase());
@@ -177,6 +213,24 @@ const filtered = computed(() => {
   });
 });
 
+// Pagination
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filtered.value.length / perPage))
+);
+
+const paginated = computed(() => {
+  const start = (page.value - 1) * perPage;
+  return filtered.value.slice(start, start + perPage);
+});
+
+// Pagination actions
+const nextPage = () => {
+  if (page.value < totalPages.value) page.value++;
+};
+const prevPage = () => {
+  if (page.value > 1) page.value--;
+};
+
 // Category badge colors
 const badgeColor = (cat) => {
   const map = {
@@ -193,7 +247,6 @@ const badgeColor = (cat) => {
   return map[cat?.toLowerCase()] || "bg-gray-100 text-gray-600";
 };
 
-// Stock indicator colors
 const stockDot = (stock) => {
   if (stock > 20) return "bg-green-500";
   if (stock > 0) return "bg-orange-500";
@@ -211,3 +264,10 @@ const logout = () => {
   router.push("/");
 };
 </script>
+
+<style scoped>
+/* Optional but improves appearance */
+button {
+  transition: 0.15s ease;
+}
+</style>

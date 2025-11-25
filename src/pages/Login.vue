@@ -91,6 +91,10 @@ const handleLogin = async () => {
     username: username.value,
     password: password.value,
   })
+
+  // 🔥 IMPORTANT: save token for route guard
+  localStorage.setItem("token", "logged_in")
+
   router.push('/products')
 }
 </script>

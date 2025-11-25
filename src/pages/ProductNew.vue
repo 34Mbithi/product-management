@@ -1,7 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex justify-center py-12 px-4">
     <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-10">
-      <!-- Header -->
       <h1 class="text-3xl font-bold mb-2 text-gray-900">Add New Product</h1>
       <p class="text-gray-500 mb-8">Fill out the form below to add a new product to your inventory.</p>
 
@@ -13,12 +12,12 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-600 mb-1">Product Title</label>
-            <input v-model="title" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter product title"/>
+            <input v-model="title" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Enter product title"/>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-600 mb-1">Product Description</label>
-            <textarea v-model="description" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none h-32" placeholder="Provide a detailed description"></textarea>
+            <textarea v-model="description" class="w-full border border-gray-300 rounded-lg px-4 py-3 resize-none h-32 focus:ring-2 focus:ring-blue-500" placeholder="Provide a detailed description"></textarea>
           </div>
         </section>
 
@@ -29,20 +28,22 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">Price</label>
-              <input type="number" v-model.number="price" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="$ 0.00"/>
+              <input type="number" v-model.number="price" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" placeholder="$ 0.00"/>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">Stock Quantity</label>
-              <input type="number" v-model.number="stock" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter stock quantity"/>
+              <input type="number" v-model.number="stock" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Enter stock quantity"/>
             </div>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-600 mb-1">Category</label>
-            <select v-model="category" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            <select v-model="category" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
               <option value="" disabled>Select a category</option>
-              <option v-for="c in store.categories" :key="c">{{ c }}</option>
+              <option v-for="c in store.categories" :key="c.slug" :value="c.slug">
+                {{ c.name }}
+              </option>
             </select>
           </div>
         </section>
@@ -52,7 +53,10 @@
           <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Media</h2>
 
           <label class="block text-sm font-medium text-gray-600 mb-2">Product Image</label>
-          <div class="w-full border-2 border-dashed border-gray-300 rounded-2xl h-48 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-blue-400 hover:text-blue-500 transition" @click="triggerFile">
+          <div
+            class="w-full border-2 border-dashed border-gray-300 rounded-2xl h-48 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-blue-400 hover:text-blue-500"
+            @click="triggerFile"
+          >
             <template v-if="thumbnailPreview">
               <img :src="thumbnailPreview" class="h-full w-full object-contain rounded-2xl"/>
             </template>
@@ -61,16 +65,17 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
               <p class="text-sm font-medium">Click to upload or drag and drop</p>
-              <p class="text-xs text-gray-400">SVG, PNG, JPG or GIF (Max. 800x400px)</p>
+              <p class="text-xs text-gray-400">SVG, PNG, JPG or GIF</p>
             </template>
           </div>
+
           <input type="file" ref="fileInput" class="hidden" @change="handleFile" accept="image/*"/>
         </section>
 
         <!-- Actions -->
         <div class="flex justify-end gap-4">
-          <button type="button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition" @click="router.push('/products')">Cancel</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Save Product</button>
+          <button type="button" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100" @click="router.push('/products')">Cancel</button>
+          <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">Save Product</button>
         </div>
 
       </form>
@@ -79,49 +84,120 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useProductsStore } from '../stores/products'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useProductsStore } from '../stores/products';
 
-const router = useRouter()
-const store = useProductsStore()
+const router = useRouter();
+const store = useProductsStore();
 
-const title = ref('')
-const description = ref('')
-const category = ref('')
-const price = ref(0)
-const stock = ref(0)
-const thumbnail = ref('')
-const thumbnailPreview = ref('')
+const title = ref('');
+const description = ref('');
+const category = ref('');
+const price = ref(0);
+const stock = ref(0);
 
-const fileInput = ref(null)
+const thumbnail = ref(null);
+const thumbnailPreview = ref('');
 
-const triggerFile = () => fileInput.value.click()
+const fileInput = ref(null);
 
-const handleFile = (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-  thumbnail.value = file
-  thumbnailPreview.value = URL.createObjectURL(file)
-}
+const triggerFile = () => {
+  if (!fileInput.value) {
+    console.warn("[ProductNew] fileInput ref not ready");
+    return;
+  }
+  fileInput.value.click();
+};
+
+const handleFile = (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) {
+    console.warn("[ProductNew] handleFile: no file selected");
+    return;
+  }
+  thumbnail.value = file;
+  thumbnailPreview.value = URL.createObjectURL(file);
+  console.log("[ProductNew] handleFile: file selected:", {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+  });
+};
 
 onMounted(() => {
-  store.fetchCategories()
-})
+  console.log("[ProductNew] mounted - fetching categories");
+  store.fetchCategories().catch((e) => {
+    console.error("[ProductNew] fetchCategories failed:", e);
+  });
+});
 
 const submit = async () => {
-  const payload = {
-    title: title.value,
-    description: description.value,
-    category: category.value,
-    price: Number(price.value),
-    stock: Number(stock.value),
-    thumbnail: thumbnail.value
+  try {
+    console.log("[ProductNew] submit() called with state:", {
+      title: title.value,
+      description: description.value,
+      category: category.value,
+      price: price.value,
+      stock: stock.value,
+      hasThumbnail: !!thumbnail.value,
+    });
+
+    const fd = new FormData();
+    fd.append("title", title.value);
+    fd.append("description", description.value);
+    fd.append("category", category.value);
+    fd.append("price", price.value != null ? String(price.value) : "");
+    fd.append("stock", stock.value != null ? String(stock.value) : "");
+
+    if (thumbnail.value) {
+      fd.append("thumbnail", thumbnail.value);
+    }
+
+    // Debug: list FormData entries (can't console.log FormData directly in some browsers)
+    console.log("[ProductNew] FormData entries:");
+    for (const pair of fd.entries()) {
+      // For files, show the file name instead of the File object
+      if (pair[1] instanceof File) {
+        console.log(" -", pair[0], ":", {
+          name: pair[1].name,
+          size: pair[1].size,
+          type: pair[1].type,
+        });
+      } else {
+        console.log(" -", pair[0], ":", pair[1]);
+      }
+    }
+
+    // Call store.addProduct and wait for result
+    const created = await store.addProduct(fd);
+    console.log("[ProductNew] store.addProduct() returned:", created);
+
+    // Extra debug: show current products array after adding
+    console.log("[ProductNew] store.products now (length):", store.products.length);
+    console.log("[ProductNew] store.products snapshot:", JSON.parse(JSON.stringify(store.products)));
+
+    // After success, navigate to /products
+    router.push("/products");
+  } catch (e) {
+    // Show useful error info in console
+    console.error("[ProductNew] submit() failed:", e);
+
+    // If axios-style error, print server response if available
+    if (e && e.response) {
+      try {
+        console.error("[ProductNew] server response:", {
+          status: e.response.status,
+          data: e.response.data,
+          headers: e.response.headers,
+        });
+      } catch (err) {
+        console.error("[ProductNew] failed to read e.response:", err);
+      }
+    }
+
+    // Optionally show a browser alert for immediate feedback (you can remove if you prefer no alerts)
+    alert("Failed to add product — check console for details.");
   }
-
-  const product = await store.addProduct(payload)
-
-  // Reset search and filters
-  router.push("/products")
-}
+};
 </script>
