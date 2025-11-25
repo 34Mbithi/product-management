@@ -27,7 +27,7 @@ The UI is styled with TailwindCSS, and all product data is handled through a sma
 
 - Login using DummyJSON API
 
--Token stored in Pinia + persisted using localStorage
+- Token stored in Pinia + persisted using localStorage
 
 - Route protection (unauthenticated users cannot access product pages)
 
@@ -159,13 +159,13 @@ npm run preview
 Currently, the project works without a .env file. but the API service (src/services/api.js) is structured to easily support environment-based URLs.
 
 Used in src/services/api.js:
-
+```bash
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://dummyjson.com",
 }); 
+```
 
-
-***Routing Overview**
+**Routing Overview**
 | Route           | Page             | Description            |
 | --------------- | ---------------- | ---------------------- |
 | `/login`        | Login.vue        | User authentication    |
@@ -173,19 +173,18 @@ const api = axios.create({
 | `/products/new` | ProductNew.vue   | Add a new product      |
 | `/products/:id` | ProductView.vue  | Product detail view    |
 
-
-***Route guards ensure:**
+**Route guards ensure:**
 
 - Unauthenticated users → redirected to /login
 
 - Authenticated users cannot return to /login
 
 
-***API Endpoints**
+**API Endpoints**
 
 - All endpoints use DummyJSON.
 
-***🔐 Auth**
+**🔐 Auth**
 
 | Action | Method | Endpoint      |
 | ------ | ------ | ------------- |
@@ -212,7 +211,7 @@ const api = axios.create({
 
 
 
-***Application Routes include**
+**Application Routes include**
 
 | Route           | Purpose                               |
 | --------------- | ------------------------------------- |
@@ -223,13 +222,13 @@ const api = axios.create({
 
 
 
-***State Management (Pinia)**
+**State Management (Pinia)**
 
 - The project uses Pinia for centralized state management.
 
 - Each store handles a specific part of the app logic and data.
 
-***stores/products.js***
+**stores/products.js***
 
 - Responsible for all product-related operations, including:
 
@@ -246,7 +245,7 @@ const api = axios.create({
 - Merging API products with locally stored products
 
 
-***stores/auth.js***
+**stores/auth.js**
 
  Handles user authentication and session state.
 
@@ -262,7 +261,7 @@ Logging out
 
   - Adding the token to axios requests
 
-***stores/categories.js***
+**stores/categories.js**
 
 A lightweight store that manages the list of product categories.
 Includes:
@@ -274,17 +273,23 @@ Includes:
 
 **Key Project Assumptions**
 
-***Architecture Assumptions***
+**Architecture Assumptions**
+
 ✔ This is a frontend-only project. No real backend required.
+
 ✔ Only necessary endpoints from DummyJSON are used.
+
 ✔ Authentication is minimal (mock-based or local).
+
 ✔ Reviews in ProductView.vue use mock data (can later be replaced by backend).
+
 ✔ TailwindCSS is used for styling components quickly.
+
 ✔ The project does not include user roles or permissions.
 
 
 
-***Authentication Assumptions***
+**Authentication Assumptions**
 
   - The DummyJSON /auth/login endpoint is used for authentication.
 
@@ -300,30 +305,32 @@ Includes:
 
   - No role-based permissions.
 
-***Product Data Assumptions***
+**Product Data Assumptions**
 
 - DummyJSON does not persist add/delete actions — therefore:
 
     ✔Newly created products are stored locally in the Pinia store.
+    
     ✔localStorage is used to maintain product state across page reloads.
 
 - Product merging logic combines:
 
 - API products + locally created products
 
-***UI & UX Assumptions***
-TailwindCSS is used for all styling.
+**UI & UX Assumptions**
+ - TailwindCSS is used for all styling.
 
-Primary accent color: #000080.
+ - Primary accent color: #000080.
 
-Layout closely follows provided mockups.
+ - Layout closely follows provided mockups.
 
-Product reviews displayed in ProductView.vue are mock data placeholders.
+ - Product reviews displayed in ProductView.vue are mock data placeholders.
 
 
-*** Features Added**
+** Features Added**
 
 This project successfully delivers all major requirements from the technical test.
+
 
 | Feature                                 | Status                               |
 | --------------------------------------- | ------------------------------------ |
@@ -345,8 +352,7 @@ This project successfully delivers all major requirements from the technical tes
 
 
 
-
-🛠 ***Troubleshooting**
+**Troubleshooting**
 If you face errors during npm install:
 
 ```bash
@@ -356,22 +362,22 @@ npm install
 ```
 
 
-***Vite development server not starting**
+**Vite development server not starting**
 
 ```bash
 npm cache clean --force
 ```
 
-***Tailwind or hot reload not updating***
+**Tailwind or hot reload not updating**
 
 ```bash
 npm run dev
 ```
- ***License**
+ **License**
  
 This project is open for personal or educational use. You may modify it freely.
 
-***Contributing**
+**Contributing**
 
 Contributions are welcome!
 Feel free to submit pull requests or request new features.
