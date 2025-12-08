@@ -79,7 +79,7 @@
             <!-- Product -->
             <td class="py-5 px-5">
               <div class="flex items-start gap-4">
-                <img :src="p.thumbnail" class="w-14 h-14 rounded-lg object-cover shadow-sm border border-gray-200" />
+                <img :src="p.thumbnail || p.images?.[0]" class="w-14 h-14 rounded-lg object-cover shadow-sm border border-gray-200" />
                 <div>
                   <p class="font-semibold text-gray-900 text-sm leading-tight">{{ p.title }}</p>
                   <p class="text-gray-500 text-xs leading-snug line-clamp-2 max-w-xs">{{ p.description }}</p>
