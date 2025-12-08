@@ -66,27 +66,30 @@ export const useProductsStore = defineStore("products", {
     },
 
     async addProduct(payload) {
-      try {
-        // Convert image to base64
-        if (payload.thumbnail instanceof File) {
-          payload.thumbnail = await fileToBase64(payload.thumbnail);
-        }
+  try {
+    let base64 = payload.thumbnail;
 
-        // Optionally call API if needed
-        // const res = await api.post("/products/add", payload);
-        // const newProd = res.data.product || res.data;
+    // Convert File to base64
+    if (payload.thumbnail instanceof File) {
+      base64 = await fileToBase64(payload.thumbnail);
+    }
 
-        const newProd = { ...payload, id: Date.now() };
+    const newProd = {
+      ...payload,
+      id: Date.now(),
+      thumbnail: base64,
+      images: [base64],        
+    };
 
-        this.products.unshift(newProd);
-        this.saveLocalProducts();
+    this.products.unshift(newProd);
+    this.saveLocalProducts();
 
-        return newProd;
-      } catch (e) {
-        console.error("addProduct() error:", e);
-        throw e;
-      }
-    },
+    return newProd;
+  } catch (e) {
+    console.error("addProduct() error:", e);
+    throw e;
+  }
+},
 
     async deleteProduct(id) {
       this.products = this.products.filter((p) => p.id != id);
