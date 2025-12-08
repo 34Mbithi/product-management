@@ -71,8 +71,8 @@
 
         <tbody>
           <tr
-            v-for="p in paginated"
-            :key="p.id"
+            v-for="(p, index) in paginated"
+            :key="p.id + '-' + index"
             class="border-b last:border-none hover:bg-gray-50 transition cursor-pointer"
             @click="goToProduct(p.id)"
           >

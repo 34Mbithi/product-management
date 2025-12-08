@@ -111,19 +111,18 @@ const triggerFile = () => {
 };
 
 const handleFile = (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) {
-    console.warn("[ProductNew] handleFile: no file selected");
-    return;
-  }
-  thumbnail.value = file;
-  thumbnailPreview.value = URL.createObjectURL(file);
-  console.log("[ProductNew] handleFile: file selected:", {
-    name: file.name,
-    size: file.size,
-    type: file.type,
-  });
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    thumbnailPreview.value = reader.result;  // for preview
+    thumbnail.value = reader.result;         // base64 string
+  };
+  
+  reader.readAsDataURL(file);
 };
+
 
 onMounted(() => {
   console.log("[ProductNew] mounted - fetching categories");
@@ -143,39 +142,19 @@ const submit = async () => {
       hasThumbnail: !!thumbnail.value,
     });
 
-    const fd = new FormData();
-    fd.append("title", title.value);
-    fd.append("description", description.value);
-    fd.append("category", category.value);
-    fd.append("price", price.value != null ? String(price.value) : "");
-    fd.append("stock", stock.value != null ? String(stock.value) : "");
+      const payload = {
+      title: title.value,
+      description: description.value,
+      category: category.value,
+      price: price.value,
+      stock: stock.value,
+      thumbnail: thumbnail.value   // BASE64
+    };
 
-    if (thumbnail.value) {
-      fd.append("thumbnail", thumbnail.value);
-    }
-
-    // Debug: list FormData entries (can't console.log FormData directly in some browsers)
-    console.log("[ProductNew] FormData entries:");
-    for (const pair of fd.entries()) {
-      // For files, show the file name instead of the File object
-      if (pair[1] instanceof File) {
-        console.log(" -", pair[0], ":", {
-          name: pair[1].name,
-          size: pair[1].size,
-          type: pair[1].type,
-        });
-      } else {
-        console.log(" -", pair[0], ":", pair[1]);
-      }
-    }
 
     // Call store.addProduct and wait for result
-    const created = await store.addProduct(fd);
+    const created = await store.addProduct(payload);
     console.log("[ProductNew] store.addProduct() returned:", created);
-
-    // Extra debug: show current products array after adding
-    console.log("[ProductNew] store.products now (length):", store.products.length);
-    console.log("[ProductNew] store.products snapshot:", JSON.parse(JSON.stringify(store.products)));
 
     // After success, navigate to /products
     router.push("/products");
@@ -196,7 +175,7 @@ const submit = async () => {
       }
     }
 
-    // Optionally show a browser alert for immediate feedback (you can remove if you prefer no alerts)
+    // Optionally show a browser alert for immediate feedback
     alert("Failed to add product — check console for details.");
   }
 };
