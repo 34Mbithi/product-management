@@ -103,10 +103,7 @@ const thumbnailPreview = ref('');
 const fileInput = ref(null);
 
 const triggerFile = () => {
-  if (!fileInput.value) {
-    console.warn("[ProductNew] fileInput ref not ready");
-    return;
-  }
+  if (!fileInput.value) return;
   fileInput.value.click();
 };
 
@@ -116,66 +113,32 @@ const handleFile = (e) => {
 
   const reader = new FileReader();
   reader.onload = () => {
-    thumbnailPreview.value = reader.result;  // for preview
-    thumbnail.value = reader.result;         // base64 string
+    thumbnailPreview.value = reader.result;  // preview
+    thumbnail.value = file;                  // File object, converted in store
   };
-  
   reader.readAsDataURL(file);
 };
 
-
 onMounted(() => {
-  console.log("[ProductNew] mounted - fetching categories");
-  store.fetchCategories().catch((e) => {
-    console.error("[ProductNew] fetchCategories failed:", e);
-  });
+  store.fetchCategories().catch(console.error);
 });
 
 const submit = async () => {
   try {
-    console.log("[ProductNew] submit() called with state:", {
+    const payload = {
       title: title.value,
       description: description.value,
       category: category.value,
       price: price.value,
       stock: stock.value,
-      hasThumbnail: !!thumbnail.value,
-    });
-
-      const payload = {
-      title: title.value,
-      description: description.value,
-      category: category.value,
-      price: price.value,
-      stock: stock.value,
-      thumbnail: thumbnail.value   // BASE64
+      thumbnail: thumbnail.value // File object
     };
 
-
-    // Call store.addProduct and wait for result
     const created = await store.addProduct(payload);
-    console.log("[ProductNew] store.addProduct() returned:", created);
-
-    // After success, navigate to /products
+    console.log("Created product:", created);
     router.push("/products");
   } catch (e) {
-    // Show useful error info in console
-    console.error("[ProductNew] submit() failed:", e);
-
-    // If axios-style error, print server response if available
-    if (e && e.response) {
-      try {
-        console.error("[ProductNew] server response:", {
-          status: e.response.status,
-          data: e.response.data,
-          headers: e.response.headers,
-        });
-      } catch (err) {
-        console.error("[ProductNew] failed to read e.response:", err);
-      }
-    }
-
-    // Optionally show a browser alert for immediate feedback
+    console.error("submit() failed:", e);
     alert("Failed to add product — check console for details.");
   }
 };

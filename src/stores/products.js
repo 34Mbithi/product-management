@@ -1,8 +1,17 @@
-// stores/products.js
 import { defineStore } from "pinia";
 import api from "../services/api";
 
 const LOCAL_KEY = "products_local";
+
+// Helper to convert File -> base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = err => reject(err);
+  });
+}
 
 export const useProductsStore = defineStore("products", {
   state: () => ({
@@ -13,108 +22,75 @@ export const useProductsStore = defineStore("products", {
   }),
 
   actions: {
-    // Load products from localStorage
     loadLocalProducts() {
-      console.log("[store] loadLocalProducts()");
       const saved = localStorage.getItem(LOCAL_KEY);
-      if (!saved) {
-        console.log("[store] No local products found");
-        return [];
-      }
+      if (!saved) return [];
       try {
-        const data = JSON.parse(saved);
-        console.log("[store] Loaded local products:", data);
-        return data;
-      } catch (e) {
-        console.error("[store] Failed to parse localStorage products:", e);
+        return JSON.parse(saved);
+      } catch {
         return [];
       }
     },
 
-    // Save current state to localStorage
     saveLocalProducts() {
-      // console.log("[store] saveLocalProducts() saving:", this.products);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(this.products));
     },
 
-    // Fetch products from API and merge with local products
     async fetchProducts() {
       this.isLoading = true;
       this.error = null;
-      // console.log("fetchProducts() start");
-
       try {
         const res = await api.get("/products");
-        console.log("fetchProducts() API response:", res.data);
-
-        const apiProducts =
-          res.data.products || res.data.productList || res.data || [];
-
+        const apiProducts = res.data.products || res.data.productList || res.data || [];
         const localProds = this.loadLocalProducts();
-
-        // Merge local + API at top
         this.products = [...localProds, ...apiProducts];
-
-        console.log("FINAL products after merge:", this.products);
       } catch (e) {
         this.error = "Failed to load products";
-        console.error("fetchProducts() ERROR:", e);
+        console.error(e);
       } finally {
         this.isLoading = false;
       }
     },
 
-    // Fetch single product by ID (checks local first)
     async fetchProductById(id) {
-      console.log("fetchProductById()", id);
       const local = this.products.find((p) => p.id == id);
-      if (local) {
-        console.log("Found locally:", local);
-        return local;
-      }
+      if (local) return local;
 
       try {
         const res = await api.get(`/products/${id}`);
-        const prod = res.data.product || res.data;
-        console.log("Fetched from API:", prod);
-        return prod;
+        return res.data.product || res.data;
       } catch (e) {
-        console.error("fetchProductById() error:", e);
+        console.error(e);
         throw e;
       }
     },
 
-    // Add a new product 
-   async addProduct(payload) {
-  try {
-    const res = await api.post("/products/add", payload);
+    async addProduct(payload) {
+      try {
+        // Convert image to base64
+        if (payload.thumbnail instanceof File) {
+          payload.thumbnail = await fileToBase64(payload.thumbnail);
+        }
 
-    const newProd = res.data.product || res.data;
+        // Optionally call API if needed
+        // const res = await api.post("/products/add", payload);
+        // const newProd = res.data.product || res.data;
 
-    // Ensure ID exists
-    newProd.id = newProd.id || Date.now();
+        const newProd = { ...payload, id: Date.now() };
 
-    // Save product locally
-    this.products.unshift(newProd);
-    this.saveLocalProducts();
+        this.products.unshift(newProd);
+        this.saveLocalProducts();
 
-    return newProd;
-  } catch (e) {
-    console.error("addProduct() error:", e);
-    throw e;
-  }
-},
+        return newProd;
+      } catch (e) {
+        console.error("addProduct() error:", e);
+        throw e;
+      }
+    },
 
-
-    // Delete product by ID (updates localStorage)
     async deleteProduct(id) {
-      console.log("deleteProduct()", id);
-
-      // Remove from local state first
       this.products = this.products.filter((p) => p.id != id);
       this.saveLocalProducts();
-
-      // Optional: call API to delete on server
       try {
         await api.delete(`/products/${id}`);
       } catch (e) {
@@ -122,15 +98,12 @@ export const useProductsStore = defineStore("products", {
       }
     },
 
-    // Fetch categories from API
     async fetchCategories() {
-      console.log("fetchCategories()");
       try {
         const res = await api.get("/products/categories");
         this.categories = Array.isArray(res.data) ? res.data : res.data.categories || [];
-        // console.log("[store] categories:", this.categories);
       } catch (e) {
-        console.error("[store] fetchCategories() ERROR:", e);
+        console.error("fetchCategories() ERROR:", e);
       }
     },
   },
