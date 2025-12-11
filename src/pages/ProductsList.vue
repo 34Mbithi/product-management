@@ -201,8 +201,6 @@ watch([search, selectedCategory, stockFilter], () => {
   page.value = 1;
 });
 
-// Provide small debounce to avoid firing on every single keystroke if needed
-// (kept simple for now; you can add useDebounce later)
 
 // Navigate
 const goToProduct = (id) => router.push({ name: 'ProductView', params: { id } });

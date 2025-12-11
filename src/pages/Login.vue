@@ -92,7 +92,7 @@ const handleLogin = async () => {
     password: password.value,
   })
 
-  // 🔥 IMPORTANT: save token for route guard
+  
   localStorage.setItem("token", "logged_in")
 
   router.push('/dashboard')
