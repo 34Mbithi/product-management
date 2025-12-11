@@ -14,11 +14,8 @@ export const useCategoriesStore = defineStore('categories', {
       this.error = null
 
       try {
-        
         const res = await api.get('/products/categories')
-
-        
-        this.categories = res.data || []
+        this.categories = Array.isArray(res.data) ? res.data : res.data.categories || []
       } catch (err) {
         this.error = err.message
       } finally {

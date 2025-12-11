@@ -1,41 +1,50 @@
 <template>
-  <div class="space-y-10 pb-20">
+  <div class="space-y-8 pb-20 p-6">
 
     <!-- Header -->
-    <div class="pt-4">
-      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Products</h1>
+    <div class="pt-2">
+      <h1 class="text-3xl font-bold pl-1 tracking-tight text-gray-900">Products</h1>
       <p class="text-gray-500 mt-1 text-sm">Manage your inventory and view product performance.</p>
     </div>
 
     <!-- Search, Filters, Add -->
-    <div class="bg-white p-6 rounded-2xl shadow border border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-      <div class="flex flex-col lg:flex-row gap-4 flex-1">
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex flex-col lg:flex-row gap-3 flex-1 items-stretch">
 
         <!-- Search -->
-        <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full shadow-sm hover:border-gray-300 transition">
+        <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-full shadow-sm hover:border-gray-300 transition">
           <i class="fa fa-search text-gray-400"></i>
           <input
-            v-model="search"
+            v-model.trim="search"
             placeholder="Search by product name..."
             class="bg-transparent focus:outline-none w-full text-sm"
+            @keydown.enter.prevent
+            aria-label="Search products by name"
           />
+          <button v-if="search" @click="search = ''" class="text-gray-400 hover:text-gray-600 ml-2">
+            ✕
+          </button>
         </div>
 
-        <!-- Category Filter -->
-        <select
-          v-model="selectedCategory"
-          class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
-        >
-          <option value="">Category</option>
-          <option v-for="c in categoryNames" :key="c" :value="c">
-            {{ c }}
-          </option>
-        </select>
+        <!-- Category Filter implemented with datalist (native, reliable) -->
+        <div class="relative w-full lg:w-64">
+          <input
+            v-model.trim="selectedCategory"
+            list="category-datalist"
+            placeholder="Filter by category..."
+            class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-1 focus:ring-blue-200"
+            aria-label="Filter by category"
+          />
+          <datalist id="category-datalist">
+            <option v-for="c in categoryNames" :key="c" :value="c" />
+          </datalist>
+          <button v-if="selectedCategory" @click="selectedCategory = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">✕</button>
+        </div>
 
         <!-- Stock Filter -->
         <select
           v-model="stockFilter"
-          class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
+          class="bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl shadow-sm cursor-pointer w-full lg:w-auto text-sm hover:border-gray-300 transition"
         >
           <option value="">Stock Status</option>
           <option value="in">In Stock</option>
@@ -46,8 +55,8 @@
 
       <!-- Add Product -->
       <router-link
-        to="/products/new"
-        class="px-6 py-3 bg-blue-900 text-white rounded-xl shadow hover:bg-blue-800 transition flex items-center gap-2 text-sm"
+        :to="{ name: 'ProductNew' }"
+        class="px-5 py-2.5 bg-blue-900 text-white rounded-xl shadow hover:bg-blue-800 transition flex items-center gap-2 text-sm whitespace-nowrap"
       >
         <i class="fa fa-plus"></i>
         Add New Product
@@ -60,8 +69,8 @@
     <!-- Product Table -->
     <div v-else class="overflow-x-auto bg-white rounded-2xl shadow border border-gray-200">
       <table class="min-w-full text-sm">
-        <thead>
-          <tr class="text-left text-gray-600 border-b bg-gray-50 text-xs uppercase tracking-wider">
+        <thead class="bg-gray-50">
+          <tr class="text-left text-gray-600 border-b text-xs uppercase tracking-wider sticky top-0">
             <th class="py-4 px-5 font-medium">Product</th>
             <th class="py-4 px-5 font-medium">Category</th>
             <th class="py-4 px-5 font-medium">Price</th>
@@ -75,46 +84,52 @@
             :key="p.id + '-' + index"
             class="border-b last:border-none hover:bg-gray-50 transition cursor-pointer"
             @click="goToProduct(p.id)"
+            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
           >
             <!-- Product -->
-            <td class="py-5 px-5">
+            <td class="py-5 px-5 align-top">
               <div class="flex items-start gap-4">
                 <img :src="p.thumbnail || p.images?.[0]" class="w-14 h-14 rounded-lg object-cover shadow-sm border border-gray-200" />
-                <div>
-                  <p class="font-semibold text-gray-900 text-sm leading-tight">{{ p.title }}</p>
+                <div class="min-w-0">
+                  <p class="font-semibold text-gray-900 text-sm leading-tight truncate">{{ p.title }}</p>
                   <p class="text-gray-500 text-xs leading-snug line-clamp-2 max-w-xs">{{ p.description }}</p>
                 </div>
               </div>
             </td>
 
             <!-- Category -->
-            <td class="py-5 px-5">
-              <span class="px-2.5 py-1 text-xs rounded-lg font-medium" :class="badgeColor(p.category)">
+            <td class="py-5 px-5 align-top">
+              <span class="px-2.5 py-1 text-xs rounded-lg font-medium inline-block" :class="badgeColor(p.category)">
                 {{ getCategoryName(p.category) }}
               </span>
             </td>
 
             <!-- Price -->
-            <td class="py-5 px-5 font-semibold text-gray-700">
+            <td class="py-5 px-5 font-semibold text-gray-700 align-top">
               ${{ Number(p.price).toFixed(2) }}
             </td>
 
             <!-- Stock -->
-            <td class="py-5 px-5">
+            <td class="py-5 px-5 align-top">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full" :class="stockDot(Number(p.stock))"></span>
                 <span class="text-sm text-gray-700">{{ stockLabel(Number(p.stock)) }}</span>
               </div>
             </td>
           </tr>
+
+          <!-- Empty state -->
+          <tr v-if="!filtered.length">
+            <td colspan="4" class="py-8 px-5 text-center text-gray-500">No products match your filters.</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
-    <div class="flex justify-between items-center text-sm text-gray-500 pt-4">
-      <span>
-        Showing {{ paginated.length }} of {{ filtered.length }} results
+    <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 pt-4 gap-3">
+      <span class="whitespace-nowrap">
+        Showing <strong class="text-gray-700">{{ paginated.length }}</strong> of <strong class="text-gray-700">{{ filtered.length }}</strong> results
       </span>
 
       <div class="flex items-center gap-2">
@@ -157,18 +172,11 @@
       </div>
     </div>
 
-    <!-- Logout -->
-    <div class="flex justify-center pt-10">
-      <button @click="logout" class="px-8 py-3 bg-red-600 text-white rounded-xl shadow hover:bg-red-500 transition text-sm">
-        Logout
-      </button>
-    </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useProductsStore } from "../stores/products";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { useRouter } from "vue-router";
@@ -180,7 +188,7 @@ const search = ref("");
 const selectedCategory = ref("");
 const stockFilter = ref("");
 const page = ref(1);
-const perPage = 10;
+const perPage = ref(10);
 
 // Load products + categories
 onMounted(async () => {
@@ -188,26 +196,42 @@ onMounted(async () => {
   await store.fetchCategories();
 });
 
+// Reset page when filters/search change (avoid empty pages)
+watch([search, selectedCategory, stockFilter], () => {
+  page.value = 1;
+});
+
+// Provide small debounce to avoid firing on every single keystroke if needed
+// (kept simple for now; you can add useDebounce later)
+
 // Navigate
-const goToProduct = (id) => router.push(`/products/${id}`);
+const goToProduct = (id) => router.push({ name: 'ProductView', params: { id } });
 
-// Filtered products
+// Filtered products (defensive & robust)
 const filtered = computed(() => {
-  return store.products.filter((p) => {
-    const matchesSearch = p.title?.toLowerCase().includes(search.value.toLowerCase());
-    const matchesCategory = selectedCategory.value
-      ? getCategoryName(p.category)?.toLowerCase() === selectedCategory.value.toLowerCase()
-      : true;
+  const q = (search.value || "").toString().trim().toLowerCase();
+  const catFilter = (selectedCategory.value || "").toString().trim().toLowerCase();
+  const isCatEmpty = !catFilter;
 
+  return (store.products || []).filter((p) => {
+    // title match (if there's a query)
+    const title = (p.title || "").toString().toLowerCase();
+    const matchesSearch = !q || title.includes(q);
+
+    // category match - if user cleared category, allow all
+    const productCat = (p.category || "").toString().toLowerCase();
+    let matchesCategory = true;
+    if (!isCatEmpty) {
+      // accept exact match OR substring match (user may type partial)
+      matchesCategory = productCat === catFilter || productCat.includes(catFilter);
+    }
+
+    // stock match
     const stock = Number(p.stock || 0);
-    const matchesStock =
-      stockFilter.value === ""
-        ? true
-        : stockFilter.value === "in"
-        ? stock > 20
-        : stockFilter.value === "low"
-        ? stock > 0 && stock <= 20
-        : stock === 0;
+    let matchesStock = true;
+    if (stockFilter.value === "in") matchesStock = stock > 20;
+    else if (stockFilter.value === "low") matchesStock = stock > 0 && stock <= 20;
+    else if (stockFilter.value === "out") matchesStock = stock === 0;
 
     return matchesSearch && matchesCategory && matchesStock;
   });
@@ -215,12 +239,14 @@ const filtered = computed(() => {
 
 // Pagination
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filtered.value.length / perPage))
+  Math.max(1, Math.ceil(filtered.value.length / perPage.value))
 );
 
 const paginated = computed(() => {
-  const start = (page.value - 1) * perPage;
-  return filtered.value.slice(start, start + perPage);
+  // clamp page to valid range
+  if (page.value > totalPages.value) page.value = totalPages.value;
+  const start = (page.value - 1) * perPage.value;
+  return filtered.value.slice(start, start + perPage.value);
 });
 
 // Pagination actions
@@ -231,17 +257,30 @@ const prevPage = () => {
   if (page.value > 1) page.value--;
 };
 
-// Category names for select dropdown
-const categoryNames = computed(() => store.categories.map(c => c.name || c));
+// Category names for datalist (normalize values to simple strings)
+const categoryNames = computed(() => {
+  // store.categories can be either array of strings (from DummyJSON) or objects
+  const raw = store.categories || [];
+  // ensure unique & sorted presentation
+  const arr = raw.map(c => (typeof c === 'string' ? c : (c.name || c.slug || c))).filter(Boolean);
+  return Array.from(new Set(arr)).sort((a,b) => a.localeCompare(b));
+});
 
-// Map slug to human-readable category
-const getCategoryName = (slug) => {
-  const cat = store.categories.find(c => c.slug === slug);
-  return cat?.name || slug;
+// Get display label for a product category 
+const getCategoryName = (cat) => {
+  if (!cat) return "Uncategorized";
+  const found = (store.categories || []).find(c => {
+    if (typeof c === 'string') return c.toLowerCase() === String(cat).toLowerCase();
+    return (c.slug && c.slug.toString().toLowerCase() === String(cat).toLowerCase())
+      || (c.name && c.name.toString().toLowerCase() === String(cat).toLowerCase());
+  });
+  if (found) return typeof found === 'string' ? found : (found.name || found.slug || cat);
+  return cat;
 };
 
-// Category badge colors
+// Category badge colors (lowercase defensively)
 const badgeColor = (cat) => {
+  const key = (cat || "").toString().toLowerCase();
   const map = {
     beauty: "bg-pink-100 text-pink-700",
     fragrances: "bg-purple-100 text-purple-700",
@@ -253,7 +292,7 @@ const badgeColor = (cat) => {
     tops: "bg-rose-100 text-rose-700",
     skincare: "bg-teal-100 text-teal-700",
   };
-  return map[cat?.toLowerCase()] || "bg-gray-100 text-gray-600";
+  return map[key] || "bg-gray-100 text-gray-600";
 };
 
 // Stock indicators
@@ -268,16 +307,21 @@ const stockLabel = (stock) => {
   if (stock > 0) return `${stock} Low Stock`;
   return "Out of Stock";
 };
-
-// Logout
-const logout = () => {
-  localStorage.clear();
-  router.push("/");
-};
 </script>
 
 <style scoped>
-button {
-  transition: 0.15s ease;
+
+table thead { 
+  background: rgba(247, 249, 252, 0.9);
 }
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rounded-2xl { border-radius: 1rem; }
+
+
+thead tr { position: sticky; top: 0; z-index: 10; }
 </style>
