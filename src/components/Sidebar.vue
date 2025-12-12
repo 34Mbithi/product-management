@@ -2,11 +2,13 @@
   <div>
     <!-- Hamburger Button -->
     <button
+      v-if="collapsed"
       class="p-3 fixed top-4 left-4 z-50 bg-white shadow-lg rounded-xl"
       @click="$emit('toggle')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
 
@@ -18,7 +20,7 @@
       ]"
     >
 
-      <!-- TOP SECTION -->
+      <!-- TOP -->
       <div>
         <div class="flex items-center justify-between mb-8">
           <div class="flex items-center gap-3">
@@ -31,15 +33,19 @@
             </div>
           </div>
 
+          <!-- Close Button -->
           <button @click="$emit('toggle')">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <!-- Navigation -->
+        <!-- NAVIGATION -->
         <nav class="space-y-2">
+
+          <!-- Dashboard -->
           <router-link
             to="/dashboard"
             class="block p-3 rounded-lg hover:bg-gray-100 flex items-center gap-3"
@@ -48,6 +54,7 @@
             <i class="fa fa-home"></i> Dashboard
           </router-link>
 
+          <!-- Products -->
           <router-link
             to="/products"
             class="block p-3 rounded-lg hover:bg-gray-100 flex items-center gap-3"
@@ -56,6 +63,7 @@
             <i class="fa fa-box"></i> Products
           </router-link>
 
+          <!-- Add Product -->
           <router-link
             to="/products/new"
             class="block p-3 rounded-lg hover:bg-gray-100 flex items-center gap-3"
@@ -63,23 +71,47 @@
           >
             <i class="fa fa-plus"></i> Add Product
           </router-link>
+
+          <!-- Orders -->
+          <router-link
+            to="/orders"
+            class="block p-3 rounded-lg hover:bg-gray-100 flex items-center gap-3"
+            :class="$route.path.startsWith('/orders') ? 'bg-gray-200 font-semibold' : ''"
+          >
+            <i class="fa fa-shopping-cart"></i> Orders
+          </router-link>
+
+          <!-- Customers -->
+          <router-link
+            to="/customers"
+            class="block p-3 rounded-lg hover:bg-gray-100 flex items-center gap-3"
+            :class="$route.path.startsWith('/customers') ? 'bg-gray-200 font-semibold' : ''"
+          >
+            <i class="fa fa-users"></i> Customers
+          </router-link>
+
         </nav>
       </div>
 
-      <!-- BOTTOM LOGOUT BUTTON -->
-      <button
-        @click="logout"
-        class="mt-6 w-full p-3 rounded-lg bg-blue-600 text-white font-semibold flex items-center justify-center gap-3 
-               hover:bg-blue-700 transition-all"
-      >
-        <i class="fa fa-sign-out"></i>
-        Logout
-      </button>
+      <!-- BOTTOM SECTION -->
+      <div class="space-y-2">
+
+      
+        <!-- Logout -->
+        <button
+          @click="logout"
+          class="mt-3 w-full p-3 rounded-lg bg-blue-600 text-white font-semibold flex items-center justify-center gap-3 
+                 hover:bg-blue-700 transition-all"
+        >
+          <i class="fa fa-sign-out"></i>
+          Logout
+        </button>
+
+      </div>
 
     </aside>
   </div>
 </template>
-
 
 <script setup>
 import { useRouter } from 'vue-router'
